@@ -1194,12 +1194,8 @@ export function AnalyzeStudio() {
 
     try {
       const compressedImageBlob = await compressImage(form.image);
-      const compressedFile = new File([compressedImageBlob], form.image.name.replace(/\.[^/.]+$/, ".jpg"), {
-        type: "image/jpeg",
-      });
-
       const payload = new FormData();
-      payload.append("file", compressedFile);
+      payload.append("file", compressedImageBlob, "image.jpg");
       payload.append("caption", form.caption);
       payload.append("audience", buildAudiencePayload(selectedDemographics));
       payload.append("budget", String(form.budget));

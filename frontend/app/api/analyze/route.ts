@@ -3,28 +3,32 @@ import { NextResponse } from "next/server";
 export const runtime = "nodejs";
 
 export async function POST(request: Request) {
-  const backendUrl = process.env.BACKEND_URL;
+  const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
+  console.log("Backend URL:", process.env.NEXT_PUBLIC_BACKEND_URL);
 
-  if (!backendUrl) {
+  if (!BACKEND_URL) {
     return NextResponse.json(
-      { error: "BACKEND_URL is not configured." },
+      { error: "NEXT_PUBLIC_BACKEND_URL is not configured." },
       { status: 500 }
     );
   }
 
   try {
     const formData = await request.formData();
-    const response = await fetch(`${backendUrl}/analyze`, {
+    const response = await fetch(`${BACKEND_URL}/analyze`, {
       method: "POST",
       body: formData,
       cache: "no-store"
     });
 
-    const contentType = response.headers.get("content-type") || "";
-    const isJson = contentType.includes("application/json");
-    const payload = isJson
-      ? await response.json()
-      : { error: "Unexpected backend response.", detail: await response.text() };
+    const text = await response.text();
+    let payload;
+    try {
+      payload = JSON.parse(text);
+    } catch (e) {
+      console.error("Invalid JSON response:", text);
+      throw new Error("Backend returned invalid response");
+    }
 
     if (!response.ok) {
       return NextResponse.json(
