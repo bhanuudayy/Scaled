@@ -1,4 +1,5 @@
 import json
+import os
 import re
 from typing import Any
 
@@ -15,6 +16,8 @@ from app.models.schemas import (
 )
 from app.utils.prompting import build_interpretation_messages
 from app.utils.settings import settings
+
+API_KEY = os.getenv("GROQ_API_KEY")
 
 
 class InterpretationService:
@@ -37,7 +40,7 @@ class InterpretationService:
     ) -> InterpretationResult:
         copy_analysis = self.analyze_copy(caption)
 
-        if settings.groq_api_key:
+        if API_KEY:
             result = await self._interpret_with_groq(
                 neuro_signals=neuro_signals,
                 predicted_behavior=predicted_behavior,
@@ -147,7 +150,7 @@ class InterpretationService:
             "max_tokens": 900,
         }
         headers = {
-            "Authorization": f"Bearer {settings.groq_api_key}",
+            "Authorization": f"Bearer {API_KEY}",
             "Content-Type": "application/json",
         }
 

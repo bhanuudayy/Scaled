@@ -1,9 +1,12 @@
 import json
+import os
 from typing import Any
 
 import httpx
 
 from app.utils.settings import settings
+
+API_KEY = os.getenv("GROQ_API_KEY")
 
 SYSTEM_PROMPT = """You are a senior performance marketing analyst.
 
@@ -39,7 +42,7 @@ def audit_response(data: dict[str, Any]) -> dict[str, Any]:
         "improved_recommendations": data.get("recommendations", []),
     }
 
-    if not settings.groq_api_key:
+    if not API_KEY:
         return fallback
 
     payload = {
@@ -51,7 +54,7 @@ def audit_response(data: dict[str, Any]) -> dict[str, Any]:
         "temperature": 0.3,
     }
     headers = {
-        "Authorization": f"Bearer {settings.groq_api_key}",
+        "Authorization": f"Bearer {API_KEY}",
         "Content-Type": "application/json",
     }
 
